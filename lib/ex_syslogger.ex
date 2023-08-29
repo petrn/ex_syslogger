@@ -211,9 +211,10 @@ defmodule ExSyslogger do
         %{log: log, config: config} = state
       ) do
     min_level = config.level
-    priority = level_to_priority(level)
+    level2 = level_to_level2(level)
 
-    if is_nil(min_level) or Logger.compare_levels(priority, min_level) != :lt do
+    if is_nil(min_level) or Logger.compare_levels(level2, min_level) != :lt do
+      priority = level_to_priority(level)
       event = format_event(level, msg, timestamp, metadata, config)
       :syslog.log(log, priority, event)
     end
@@ -226,6 +227,12 @@ defmodule ExSyslogger do
   ##############################################################################
   #
   # Internal functions
+
+
+  defp level_to_level2(:debug), do: :debug
+  defp level_to_level2(:info), do: :info
+  defp level_to_level2(:warn), do: :warning
+  defp level_to_level2(:error), do: :error
 
   defp level_to_priority(:debug), do: :debug
   defp level_to_priority(:info), do: :info
